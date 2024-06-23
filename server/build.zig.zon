@@ -1,0 +1,17 @@
+.{
+    .name = "tiny_pub_sub",
+    .version = "0.0.0",
+    .dependencies = .{
+        .network = .{
+            .url = "git+https://github.com/MasterQ32/zig-network#master",
+            .hash = "1220dccfdf2d1bb9abc1c847c465bbbf02612e822d4de8f9e090e70659799370a635",
+        },
+        .zqlite = .{
+            .url = "git+https://github.com/karlseguin/zqlite.zig#master",
+            .hash = "1220caeb2f035106b9d93f02d26f72bf3aa6f63e543d0e35c9e6c053dda510cc512e",
+        },
+    },
+    .paths = .{
+        "",
+    },
+}

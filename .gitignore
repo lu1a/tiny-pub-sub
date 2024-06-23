@@ -1,0 +1,4 @@
+server/db.sqlite
+server/lib/sqlite3
+server/zig-cache
+server/zig-out
