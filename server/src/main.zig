@@ -102,7 +102,12 @@ fn writeEventAndQueueForSending(global: *Global, c1: zqlite.Conn, client: networ
         std.debug.print("Failed to start transaction before writing event to db: {}\n", .{err});
         return;
     };
-    c1.exec("INSERT INTO queue_history (msg, sender_ip, sender_port) values (?1, ?2, ?3)", .{ msg[0..msg_len], &client.address.ipv4.value, client.port }) catch |err| {
+    var msg_len_with_end_popped = msg_len;
+    if (msg[msg_len] == std.ascii.whitespace[2] or msg[msg_len] == 170) {
+        msg_len_with_end_popped -= 1;
+    }
+    var trimmed_msg = trimFromBufStr(&msg, msg_len);
+    c1.exec("INSERT INTO queue_history (msg, sender_ip, sender_port) values (?1, ?2, ?3)", .{ trimmed_msg.str[0..trimmed_msg.str_len], &client.address.ipv4.value, client.port }) catch |err| {
         std.debug.print("Failed to write msg into db: {}\n", .{err});
         return;
     };
@@ -114,16 +119,16 @@ fn writeEventAndQueueForSending(global: *Global, c1: zqlite.Conn, client: networ
 
     // add event to be sent out
     global.event_buf_lock.lock();
-    global.event_buf = msg;
-    global.event_len = msg_len;
+    global.event_buf = trimmed_msg.str;
+    global.event_len = trimmed_msg.str_len;
     global.event_id = event_id;
     _ = global.event_cond.signal();
     global.event_buf_lock.unlock();
 }
 
 fn markEventReadByIdStr(sock: network.Socket, client: network.EndPoint, c1: zqlite.Conn, msg_id_str: *[buflen]u8, msg_len: usize) void {
-    // len -1 because I'm always expecting '\n' at the end of every command
-    const msg_id: i64 = std.fmt.parseInt(i64, msg_id_str[0 .. msg_len - 1], 10) catch {
+    var trimmed_msg = trimFromBufStr(msg_id_str, msg_len);
+    const msg_id: i64 = std.fmt.parseInt(i64, trimmed_msg.str[0..trimmed_msg.str_len], 10) catch {
         _ = sock.sendTo(client, "ERR Failed to parse id as int\n") catch |send_err| {
             std.debug.print("Failed to send to {s}: {}\n", .{ client, send_err });
             return;
@@ -241,7 +246,7 @@ fn sendAllSavedUnreadEvents(global: *Global, c1: zqlite.Conn, sock: network.Sock
     var msg_id: i64 = 0;
     while (rows.next()) |row| {
         var msg_plus_ctrl_scheme: [buflen]u8 = undefined;
-        // minimum 8 with the EVT etc.
+        // minimum 9 with the "EVT ", etc.
         var msg_len_plus_ctrl_scheme: usize = 8;
         msg_id = row.int(0);
         _ = std.fmt.bufPrint(&msg_plus_ctrl_scheme, "EVT id:{d} {s}", .{ msg_id, row.text(1) }) catch |err| {
@@ -277,4 +282,36 @@ fn countDigits(num: i64) usize {
         count += 1;
     }
     return count;
+}
+
+fn trimFromBufStr(str: *const [buflen]u8, str_len: usize) struct { str: [buflen]u8, str_len: usize } {
+    const new_str_len: usize = str_len;
+    var shift_forward_how_many: usize = 0;
+    var i: usize = 0;
+    while (true) : (i += 1) {
+        if ((std.mem.indexOf(u8, &std.ascii.whitespace, &[_]u8{str[i]}) orelse 9999) != 9999) {
+            shift_forward_how_many += 1;
+        } else {
+            break;
+        }
+    }
+
+    var pop_off_how_many: usize = 0;
+    var j: usize = new_str_len - 1;
+    while (true) : (j -= 1) {
+        if ((std.mem.indexOf(u8, &std.ascii.whitespace, &[_]u8{str[j]}) orelse 9999) != 9999) {
+            pop_off_how_many += 1;
+        } else {
+            break;
+        }
+    }
+
+    var tmp: [buflen]u8 = undefined;
+    var k: usize = shift_forward_how_many;
+    var l: usize = 0;
+    while (k <= (str_len - pop_off_how_many)) : (k += 1) {
+        tmp[l] = str[k];
+        l += 1;
+    }
+    return .{ .str = tmp, .str_len = (str_len - pop_off_how_many - shift_forward_how_many) };
 }
