@@ -1,14 +1,39 @@
 import socket
 import threading
+import time
 import argparse
+
+def send_message(sock, ip, port, message):
+    message = f"SND {message}"
+    sock.sendto(message.encode(), (ip, port))
+    return
+
+def send_ack(sock, ip, port, id):
+    message = f"ACK {id}"
+    sock.sendto(message.encode(), (ip, port))
+    return
+
+def request_history(sock, ip, port):
+    sock.sendto("HIS".encode(), (ip, port))
+    return
 
 def send_udp_packet(sock, ip, port, stop_event):
     while not stop_event.is_set():
-        message = input("")
-        if message.lower() == 'exit':
+        cmd = input("What would you like to do?\nsend a message (1)\nacknowledge a message (2)\nrequest all the unread messages (3)\nexit (4)\nans: ")
+        if cmd.lower() == 'exit' or cmd.startswith("4"):
             stop_event.set()
             break
-        sock.sendto(message.encode(), (ip, port))
+        if cmd.startswith("1"):
+            message = input("Send what?: ")
+            send_message(sock, ip, port, message)
+        elif cmd.startswith("2"):
+            message = input("Which id?: ")
+            send_ack(sock, ip, port, message)
+        elif cmd.startswith("3"):
+            request_history(sock, ip, port)
+        else:
+            print("Unsupported cmd type")
+        time.sleep(1)
 
 def receive_udp_packet(sock, stop_event):
     while not stop_event.is_set():
@@ -17,7 +42,7 @@ def receive_udp_packet(sock, stop_event):
             data, server = sock.recvfrom(4096)
             print(data.decode())
         except socket.timeout:
-            continue  # Check the stop_event again
+            continue
         except Exception as e:
             if not stop_event.is_set():
                 print(f"Error receiving message: {e}")

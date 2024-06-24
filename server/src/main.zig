@@ -7,7 +7,7 @@ const zqlite = @import("zqlite");
 
 const buflen = 4096;
 const Global = struct {
-    connected_clients: [32]network.EndPoint = undefined,
+    connected_clients: [64]network.EndPoint = undefined,
     connected_client_count: usize = 0,
     clients_lock: std.Thread.Mutex = .{},
 
@@ -285,6 +285,10 @@ fn countDigits(num: i64) usize {
 }
 
 fn trimFromBufStr(str: *const [buflen]u8, str_len: usize) struct { str: [buflen]u8, str_len: usize } {
+    var tmp: [buflen]u8 = undefined;
+    if (str_len == 0) {
+        return .{ .str = tmp, .str_len = str_len };
+    }
     const new_str_len: usize = str_len;
     var shift_forward_how_many: usize = 0;
     var i: usize = 0;
@@ -306,7 +310,6 @@ fn trimFromBufStr(str: *const [buflen]u8, str_len: usize) struct { str: [buflen]
         }
     }
 
-    var tmp: [buflen]u8 = undefined;
     var k: usize = shift_forward_how_many;
     var l: usize = 0;
     while (k <= (str_len - pop_off_how_many)) : (k += 1) {
