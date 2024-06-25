@@ -249,7 +249,7 @@ fn sendAllSavedUnreadEvents(global: *Global, c1: zqlite.Conn, sock: network.Sock
         // minimum 9 with the "EVT ", etc.
         var msg_len_plus_ctrl_scheme: usize = 8;
         msg_id = row.int(0);
-        _ = std.fmt.bufPrint(&msg_plus_ctrl_scheme, "EVT id:{d} {s}", .{ msg_id, row.text(1) }) catch |err| {
+        _ = std.fmt.bufPrint(&msg_plus_ctrl_scheme, "EVT id={d} {s}", .{ msg_id, row.text(1) }) catch |err| {
             std.debug.print("Failed parse msg out: {}\n", .{err});
             return;
         };
