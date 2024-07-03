@@ -7,8 +7,8 @@
             .hash = "12203b3634f36570ffced059248bd429cd06dc89a98659c86569d890fdd99b5070bd",
         },
         .zqlite = .{
-            .url = "git+https://github.com/karlseguin/zqlite.zig#master",
-            .hash = "1220caeb2f035106b9d93f02d26f72bf3aa6f63e543d0e35c9e6c053dda510cc512e",
+            .url = "git+https://github.com/karlseguin/zqlite.zig#68d5588ab9391330c3bfd9e03a42a95809490c11",
+            .hash = "1220e7d350ea01a2655afc136b7f22172fe00f841371904a074af90e48955c9823c6",
         },
     },
     .paths = .{
