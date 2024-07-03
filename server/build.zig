@@ -11,13 +11,13 @@ pub fn build(b: *std.Build) void {
 
     const exe = b.addExecutable(.{
         .name = "tiny_pub_sub",
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
 
     exe.addCSourceFile(.{
-        .file = std.Build.path(b, "lib/sqlite3/sqlite3.c"),
+        .file = b.path("lib/sqlite3/sqlite3.c"),
         .flags = &[_][]const u8{
             "-DSQLITE_DQS=0",
             "-DSQLITE_DEFAULT_WAL_SYNCHRONOUS=1",
@@ -38,7 +38,7 @@ pub fn build(b: *std.Build) void {
             "-DHAVE_USLEEP=0",
         },
     });
-    exe.addIncludePath(std.Build.path(b, "lib/sqlite3/"));
+    exe.addIncludePath(b.path("lib/sqlite3/"));
 
     exe.root_module.addImport("network", network_module);
     exe.root_module.addImport("zqlite", zqlite.module("zqlite"));
@@ -52,7 +52,7 @@ pub fn build(b: *std.Build) void {
     const run_step = b.step("run", "Run the app");
     run_step.dependOn(&run_cmd.step);
     const unit_tests = b.addTest(.{
-        .root_source_file = .{ .path = "src/main.zig" },
+        .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
