@@ -272,6 +272,8 @@ fn initializeDB(conn: zqlite.Conn) !void {
     try conn.execNoArgs("CREATE TABLE IF NOT EXISTS queue_history(id INTEGER PRIMARY KEY AUTOINCREMENT, received_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, msg TEXT NOT NULL, read_count INTEGER NOT NULL DEFAULT 0, sender_ip TEXT NOT NULL, sender_port INTEGER NOT NULL)");
 }
 
+// util functions below
+
 fn countDigits(num: i64) usize {
     var count: usize = 0;
     var n = num;

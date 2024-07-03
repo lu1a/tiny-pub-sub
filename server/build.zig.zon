@@ -3,7 +3,7 @@
     .version = "0.0.0",
     .dependencies = .{
         .network = .{
-            .url = "git+https://github.com/MasterQ32/zig-network#master",
+            .url = "git+https://github.com/MasterQ32/zig-network#bcf6cc8918d574f947b2647522d84a805c33f1c8",
             .hash = "1220dccfdf2d1bb9abc1c847c465bbbf02612e822d4de8f9e090e70659799370a635",
         },
         .zqlite = .{
