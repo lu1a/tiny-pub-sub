@@ -1,7 +1,7 @@
 # tiny-pub-sub
 A pub/sub message queue server from scratch in zig, over UDP.
 
-For development, download the SQLite amalgamation from the [SQLite download page](https://www.sqlite.org/download.html) and place the sqlite.c and sqlite.h file in the server/lib/sqlite3/ folder. Then run `zig build run` and possibly replace the hashes inside the server/build.zig.zon file. (TODO: use specific commits of my deps other than `master`.)
+For development, download the SQLite amalgamation from the [SQLite download page](https://www.sqlite.org/download.html) and place the sqlite.c and sqlite.h file in the server/lib/sqlite3/ folder. Then run `zig build run`.
 
 Instead of also spinning up a client to test the server, you can just run in the terminal `nc -u 127.0.0.1 9999` and start sending messages (starting with the prefix `SND/ACK/HIS`).
 
