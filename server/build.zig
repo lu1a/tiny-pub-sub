@@ -6,7 +6,6 @@ pub fn build(b: *std.Build) void {
 
     const dep_opts = .{ .target = target, .optimize = optimize };
     const network_module = b.dependency("network", dep_opts).module("network");
-
     const zqlite = b.dependency("zqlite", dep_opts);
 
     const exe = b.addExecutable(.{
@@ -39,8 +38,7 @@ pub fn build(b: *std.Build) void {
             "-DHAVE_USLEEP=0",
         },
     });
-    exe.addIncludePath(b.path("lib/sqlite3/"));
-
+    zqlite.module("zqlite").addIncludePath(b.path("lib/sqlite3/"));
     exe.root_module.addImport("network", network_module);
     exe.root_module.addImport("zqlite", zqlite.module("zqlite"));
 
