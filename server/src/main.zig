@@ -43,7 +43,7 @@ pub fn main() !void {
     // of this program can all subscribe to the UDP broadcasts
     try sock.enablePortReuse(true);
     const incoming_endpoint = network.EndPoint{
-        .address = network.Address{ .ipv4 = network.Address.IPv4.init(127, 0, 0, 1) },
+        .address = network.Address{ .ipv4 = network.Address.IPv4.init(0, 0, 0, 0) },
         .port = 9999,
     };
     sock.bind(incoming_endpoint) catch |err| {
