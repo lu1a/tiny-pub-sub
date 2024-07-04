@@ -16,6 +16,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    exe.linkLibC();
     exe.addCSourceFile(.{
         .file = b.path("lib/sqlite3/sqlite3.c"),
         .flags = &[_][]const u8{
